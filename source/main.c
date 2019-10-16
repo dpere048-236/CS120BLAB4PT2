@@ -1,7 +1,7 @@
-/*	Author: dpere048
+/*	Author: David Perez  dpere048@ucr.edu
  *  Partner(s) Name: 
  *	Lab Section:
- *	Assignment: Lab #  Exercise #
+ *	Assignment: Lab 4#  Exercise #2
  *	Exercise Description: [optional - include for your own benefit]
  *
  *	I acknowledge all content contained herein, excluding template or example
@@ -59,7 +59,7 @@ void button_Tick(){
 		if(button && button2){
 			state = zero;
 		}
-		else if{
+		else{
 			state = wait2;
 		}
 		break;
@@ -71,7 +71,21 @@ void button_Tick(){
 			state = wait;
 		}
 		else{
-			state = wait2
+			state = wait2;
+		}
+		break;
+	case zero:
+		if(!button && !button2){
+			state = start;
+		}
+		else if(button && !button2){
+			state = increase;
+		}
+		else if(!button && button2){
+			state = decrease;
+		}
+		else if(button &&  button2){
+			state = zero;
 		}
 		break;
 	}
