@@ -11,50 +11,85 @@
 #ifdef _SIMULATE_
 #include "simAVRHeader.h"
 #endif
-enum States{start, led0, wait, led1} state;
+enum States{start, increase, decrease, zero, wait, wait2} state;
 unsigned char button;
-unsigned char tmpA;
-void led_Tick(){
-	switch(state){
-		if(button ==1){ //if button is pressed, state turns on led pb1
-			state = led1;
-		}
-		else //if no button is pressed, remains in start
+unsigned char button2;
+unsigned char tmpC;
+void button_Tick(){
+    button = PINA&0x01; //button = pinA0
+    button2 = PINA&0x02;//BUTTON2 = PINA1
+      switch(state){
+	case start:	
+		if(!button && !button2){ 
 			state = start;
-		break;
-	case led1:
-		if(button == 1){
-			state = led1;
 		}
-		else
-			state = wait;
+		else if(!button2 && button){
+			state = increase;
+		}
+		else if(!button && button2){
+			state = decrease;
+		}
+		else if(button && button2){
+			state = zero;
+		}
+		break;
+	case increase:
+		if(button && button2){
+			state = zero;
+		}
+		else{
+			state = wait2;
+		}
 		break;
 	case wait:
-		if(button == 1){ //button pressed siwtches back to led0
-			state = led0;
+		if(button && button2){ 
+			state = zero;
 		}
-		else 
+		else if(!button && button2){ 
+			state = decrease;
+		}
+		else if(button && !button2){
+			state = increase;
+		}
+		else{
 			state = wait;
-		break;
-	case led0:
-		if(button == 1){
-			state = led0;
 		}
-		else
-			state = start; //starts back at start
+		break;
+	case decrease:
+		if(button && button2){
+			state = zero;
+		}
+		else if{
+			state = wait2;
+		}
+		break;
+	case wait2:
+		if(button && button2){
+			state = zero;
+		}
+		else if(!button2 && !button){
+			state = wait;
+		}
+		else{
+			state = wait2
+		}
 		break;
 	}
 	switch(state){
-		case init:
-			tmpA = 0x01;
+		case start:
 			break;
-		case led1:
-			tmpA = 0x02; //when ledpb1 is on, tmpA = 0x02
+		case increase:
+			if(tmpC < 9){
+				tmpC = tmpC +1;
+		}
 			break;
-		case wait:
-			tmpA = 0x02; //when waiting, tmpA is still 0x02
-		case led0:
-			tmpA = 0x01;  //when back to led0, tmpA =is 0x01
+		case decrease:
+			if(tmpC > 0){
+				tmpC = tmpC -1;
+		}
+			break;
+		case zero:
+			tmpC = 0;
 			break;
 	}
 }
@@ -63,14 +98,15 @@ void led_Tick(){
 int main(void) {
     /* Insert DDR and PORT initializations */
 	DDRA = 0x00; PORTA = 0xFF; //configure port A as inputs
-	DDRB = 0xFF; PORTB = 0x00; //configure port B as outputs
+	DDRC = 0xFF; PORTB = 0x00; //configure port C as outputs
 	state = start; //state is in initial state
     /* Insert your solution below */
+	tmpC = 0x07;
     while (1) {
 	button = PINA&0x01;
-	led_Tick();
-	PORTB = tmpA;
+	button_Tick();
+	PORTC = tmpC;
 	}
 
-    return 1;
+    return 0;
 }
